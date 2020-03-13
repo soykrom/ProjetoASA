@@ -33,5 +33,11 @@ int main() {
     vector<vector <int>> matrix = processInput(grades);
     
 
+    
+
+    for(int i = 0; i < grades.size(); i++) {
+        cout << grades.at(i) << "\n";
+    }
+
     return 0;
 }
