@@ -39,8 +39,8 @@ class Node {
 
       return;
     }
-
 };
+
 
 Node** processInput(int &size) {
   int nodes, paths, grade;
@@ -48,7 +48,6 @@ Node** processInput(int &size) {
   char eater;
 
   cin >> nodes >> eater >> paths;
-
   size = nodes;
 
   Node **students = new Node* [nodes];
@@ -63,6 +62,7 @@ Node** processInput(int &size) {
     students[i] = new_node;
 
     if(i) students[i-1]->_nextNode = new_node;
+
   }
 
   //for the paths
@@ -138,5 +138,4 @@ int main() {
   }
 
   return 0;
-
 }
