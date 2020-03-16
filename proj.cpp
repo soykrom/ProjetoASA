@@ -11,7 +11,6 @@ class Node {
 
     Node() {
       _grade = 0;
-
     }
 
     Node(int grade) {
@@ -26,50 +25,71 @@ class Node {
       _grade = grade;
     }
 
-    void spreadGrade(Node *node) {
+    void changeVisited(Node *node, vector<Node*> &order) {
       node->_visited = true;
+
+      for(int i = 0; i < (int) order.size(); i++) {
+        if(order.at(i) == node) {
+          order.erase(order.begin() + i);
+          break;
+        }
+      }      
+    }
+
+    void spreadGrade(Node *node, vector<Node*> &order) {
+      node->changeVisited(node, order);
+
       for(int i = 0; i < (int) node->_pointedTo.size(); i++) {
         if(!node->_pointedTo.at(i)->_visited) {
           node->_pointedTo.at(i)->setGrade(node->_grade);
-          node->_pointedTo.at(i)->spreadGrade(node->_pointedTo.at(i));
+          node->_pointedTo.at(i)->spreadGrade(node->_pointedTo.at(i), order);
         }
       }
-
       return;
     }
-
 };
 
-vector<Node*> processInput() {
+vector<Node*> processInput(vector<Node*> &order) {
   int nodes, paths, grade;
   int begin, end;
   char eater;
 
   cin >> nodes >> eater >> paths;
 
-  vector<Node*> students(nodes);
+  Node *help = (Node *) malloc(sizeof(Node));  
+  *help = Node();
+  vector<Node*> students(nodes, help);
+  order = students;
 
   for(int i = 0; i < nodes; i++) {
+    int cont = 0;
+
     cin >> grade;
 
-    Node *new_node = (Node *) malloc(sizeof(Node)); 
-    
+    Node *new_node = (Node *) malloc(sizeof(Node));   
     *new_node = Node(grade);
 
     students.at(i) = new_node;
+
+    if(i != 0) {
+      while(new_node->_grade < order.at(cont)->_grade) cont++;
+
+      for(int aux = i; aux > cont; aux--) order.at(aux) = order.at(aux - 1);
+    }
+
+    order.at(cont) = new_node;
+
   }
 
-  //for the paths
   for(int i = 0; i < paths; i++) {
     cin >> begin >> end;
     students.at(end - 1)->addLine(students.at(begin - 1));
   }
 
   return students;
-
 }
 
-//FEIO
+
 Node* highestUnvisited(vector<Node*> students) {
   int pos = -1, grade = 0;
 
@@ -86,24 +106,28 @@ Node* highestUnvisited(vector<Node*> students) {
 }
 
 int main() {
+  vector<Node*> order;
+  vector<Node*> students = processInput(order);
 
-  //Tornar a merda dos students em ponteiros -> * <- this thing right here
-  vector<Node*> students = processInput();
-
-  Node *actual_node = highestUnvisited(students);
+  Node *actual_node;
 
   while(true) {
-    if(!actual_node) break;
+    actual_node = order.at(0);
 
-    actual_node->spreadGrade(actual_node);
 
-    actual_node = highestUnvisited(students);
+    actual_node->spreadGrade(actual_node, order);
+
+    if(order.size() == 0) break;
   }
 
   for(int i = 0; i < (int) students.size(); i++) {
     printf("%d\n", students.at(i)->_grade);
+    free(students.at(i));
   }
+
+
 
   return 0;
 
 }
+
