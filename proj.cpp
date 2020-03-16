@@ -39,8 +39,8 @@ class Node {
 
       return;
     }
+  };
 
-};
 
 Node** processInput(int &size) {
   int nodes, paths, grade;
@@ -48,7 +48,6 @@ Node** processInput(int &size) {
   char eater;
 
   cin >> nodes >> eater >> paths;
-
   size = nodes;
 
   Node **students = new Node* [nodes];
@@ -121,10 +120,6 @@ int main() {
 
   heapSort(students, size);
 
-  for(int i = 0; i < size; i++){
-    printf("%d\n", students[i]->_grade);
-  }
-
   Node* highestNode;
 
   while(true) {
@@ -142,7 +137,5 @@ int main() {
 
     if(currentNode == NULL) break;
   }
-
   return 0;
-
 }
