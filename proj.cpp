@@ -1,82 +1,146 @@
 #include <iostream>
 #include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 class Node {
-    public:
-        int _grade;
-        bool _visited = false;
-        vector<Node> _pointedTo;
+  public:
+    int _grade;
+    bool _visited = false;
+    vector<Node*> _pointedTo;
+    Node* _next = NULL;
 
-        Node(){}
+    Node() {
+      _grade = 0;
 
-        Node(int grade) {
-            _grade = grade;
+    }
+
+    Node(int grade) {
+        _grade = grade;
+    }
+
+    void addLine(Node *node) {
+        _pointedTo.push_back(node);
+    }
+
+    void setGrade(int grade){
+      _grade = grade;
+    }
+
+    void spreadGrade(Node *node) {
+      node->_visited = true;
+      for(int i = 0; i < (int) node->_pointedTo.size(); i++) {
+        if(!node->_pointedTo.at(i)->_visited) {
+          node->_pointedTo.at(i)->setGrade(node->_grade);
+          node->_pointedTo.at(i)->spreadGrade(node->_pointedTo.at(i));
         }
+      }
 
-        void addLine(Node node) {
-            _pointedTo.push_back(node);
-        }
-
-        void setGrade(int grade){
-          _grade = grade;
-        }
-
-        void spreadGrade(Node node) {
-          node._visited = true;
-          for(int i = 0; i < (int) node._pointedTo.size(); i++) {
-              if(!node._pointedTo.at(i)._visited) {
-                  node._pointedTo.at(i).setGrade(node._grade);
-                  node._pointedTo.at(i).spreadGrade(_pointedTo.at(i));
-              }
-            }
-          return;
-        }
+      return;
+    }
 
 };
 
-vector<Node> processInput(){
+Node** processInput(int &size) {
   int nodes, paths, grade;
   int begin, end;
   char eater;
 
   cin >> nodes >> eater >> paths;
 
-  vector<Node> students(nodes);
+  size = nodes;
 
-  for(int i = 0; i < nodes; i++){
+  Node **students = new Node* [nodes];
+
+  for(int i = 0; i < nodes; i++) {
     cin >> grade;
-    int cont = 0;
-    while(grade < students.at(cont)._grade) {cont++; }
-    for(int j = students.size() - 1; j > cont; j--) {
-       students.at(j) = students.at(j - 1);
-     }
-     students.at(cont).setGrade(grade);
-  }
 
-  //for the paths
-  for(int i = 0; i < paths; i++){
-    cin >> begin >> end;
-    students.at(end - 1).addLine(students.at(begin - 1));
-  }
+    Node *new_node = (Node *) malloc(sizeof(Node));
 
+    *new_node = Node(grade);
 
-  return students;
-}
+    students[i] = new_node;
 
-int main(){
-
-  //Tornar a merda dos students em ponteiros -> * <- this thing right here
-  vector<Node> students = processInput();
-  for(int i = 0; i < (int) students.size(); i++){
-    if(!students.at(i)._visited){
-      students.at(i).spreadGrade(students.at(i));
+    if(i){
+      students[i-1]->_next = new_node;
     }
   }
 
-  for(int i = 0; i < (int) students.size(); i++){
-    printf("%d\n", students.at(i)._grade);
+  //for the paths
+  for(int i = 0; i < paths; i++) {
+    cin >> begin >> end;
+    students[end - 1]->addLine(students[begin - 1]);
+  }
+
+  return students;
+
+}
+
+Node* highestUnvisited(Node* students[], int size) {
+  for(int i = 0; i < size; i++) {
+    if(!students[i]->_visited)
+      return students[i];
+  }
+
+  return NULL;
+}
+
+void heapify(Node* arr[], int n, int i){
+    int smallest = i;
+    int l = 2 * i + 1;
+    int r = 2 * i + 2;
+
+    if (l < n && arr[l]->_grade < arr[smallest]->_grade)
+        smallest = l;
+
+    if (r < n && arr[r]->_grade < arr[smallest]->_grade)
+        smallest = r;
+
+    if (smallest != i) {
+        swap(arr[i], arr[smallest]);
+        heapify(arr, n, smallest);
+    }
+}
+
+void heapSort(Node *arr[], int n){
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    for (int i = n - 1; i >= 0; i--) {
+        swap(arr[0], arr[i]);
+        heapify(arr, i, 0);
+    }
+}
+
+
+int main() {
+  int size;
+  Node** students = processInput(size);
+  Node* currentNode = students[0];
+
+  heapSort(students, size);
+
+  for(int i = 0; i < size; i++){
+    printf("%d\n", students[i]->_grade);
+  }
+
+  Node* highestNode;
+
+  while(true) {
+    highestNode = highestUnvisited(students, size);
+
+    if(highestNode == NULL) break;
+
+    highestNode->spreadGrade(highestNode);
+  }
+
+  while(true){
+    printf("%d\n", currentNode->_grade);
+
+    currentNode = currentNode->_next;
+
+    if(currentNode == NULL) break;
   }
 
   return 0;
