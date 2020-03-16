@@ -9,7 +9,7 @@ class Node {
     int _grade;
     bool _visited = false;
     vector<Node*> _pointedTo;
-    Node* _next = NULL;
+    Node* _nextNode = NULL;
 
     Node() {
       _grade = 0;
@@ -62,7 +62,7 @@ Node** processInput(int &size) {
 
     students[i] = new_node;
 
-    if(i) students[i-1]->_next = new_node;
+    if(i) students[i-1]->_nextNode = new_node;
   }
 
   //for the paths
@@ -132,7 +132,7 @@ int main() {
   while(true) {
     printf("%d\n", currentNode->_grade);
 
-    currentNode = currentNode->_next;
+    currentNode = currentNode->_nextNode;
 
     if(currentNode == NULL) break;
   }
